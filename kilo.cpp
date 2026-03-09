@@ -1,18 +1,33 @@
-#include <unistd.h>
+#include <stdlib.h>
 #include <termios.h>
+#include <unistd.h>
 
+struct termios orig_termios;
+
+void disableRawMode() {
+  tcsetattr(STDIN_FILENO, TCSAFLUSH, &orig_termios);
+}
 
 void enableRawMode() {
-  struct termios raw;
   // Terminal attributes can be read into a termios struct by tcgetattr(). 
   // After modifying them, you can then apply them to the terminal using tcsetattr(). 
+  tcgetattr(STDIN_FILENO, &orig_termios);
+  // atexit() comes from <stdlib.h>. We use it to register our disableRawMode()
+  atexit(disableRawMode);
+  // We store the original terminal attributes in a global variable, orig_termios. 
+  // We assign the orig_termios struct to the raw struct in order to make a copy of it before we start making our changes.
+  struct termios raw = orig_termios;
+  // echoing is the default behavior where the terminal automatically prints out every single key you type onto the screen so that you can see it, this stops that
+  // The c_lflag field is for “local flags”. A comment in macOS’s <termios.h> describes it as a “dumping ground for other state”. 
+  // So perhaps it should be thought of as “miscellaneous flags”. The other flag fields are c_iflag (input flags), c_oflag (output flags), 
+  // and c_cflag (control flags), all of which we will have to modify to enable raw mode.
+  raw.c_lflag &= ~(ECHO);
   // The TCSAFLUSH argument specifies when to apply the change: in this case, it waits for all pending output to be written to the terminal, 
   // and also discards any input that hasn’t been read.
-  tcgetattr(STDIN_FILENO, &raw);
-  // echoing is the default behavior where the terminal automatically prints out every single key you type onto the screen so that you can see it, this stops that
-  raw.c_lflag &= ~(ECHO);
   tcsetattr(STDIN_FILENO, TCSAFLUSH, &raw);
 }
+
+
 
 int main() {
     enableRawMode();
