@@ -7,6 +7,25 @@
 #include <termios.h>
 #include <unistd.h>
 
+/*** defines ***/
+/** function usage
+ * We can use this to detect Ctrl key combinations and map them to different operations in our editor.
+ */
+
+/** function explained
+ * 0x1f is a hexadecimal number. In standard decimal, it is 31.
+ * In binary, 31 is written as 00011111.
+ * The & is a bitwise AND operator. When you AND any number with 00011111, 
+ * the bottom 5 bits stay exactly the same, but the top 3 bits are instantly crushed to 0.
+ * 
+ * 01110001  (ASCII 'q' / 113)
+ * AND 00011111  (The 0x1f mask / 31)
+ * ----------------
+ * = 00010001  (The result / 17)
+*/
+#define CTRL_KEY(k) ((k) & 0x1f)
+
+
 /*** data ***/
 
 struct termios orig_termios;
@@ -133,8 +152,7 @@ int main()
     }
     /* If it reads a 'q',
     it will exit the loop and the program will end. Otherwise, it will keep waiting for input. */
-    if (c == 'q')
-      break;
+    if (c == CTRL_KEY('q')) break;
   }
   return 0;
 }
