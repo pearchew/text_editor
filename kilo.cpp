@@ -91,7 +91,7 @@ void enableRawMode()
   // |= turns on the feature with a bitwise OR It forces the specific bit to 1 without touching the others.
   raw.c_cflag |= (CS8);
   raw.c_lflag &= ~(ECHO | ICANON | IEXTEN | ISIG);
-  /** indexes into the c_cc field
+  /** indexes into the c_,cc field
    * which stands for “control characters”
    * The VMIN value sets the minimum number of bytes of input needed before read() can return.
    * VTIME value sets the maximum amount of time to wait before read() returns. It is in tenths of a second, so we set it to 1/10 of a second, or 100 milliseconds.
